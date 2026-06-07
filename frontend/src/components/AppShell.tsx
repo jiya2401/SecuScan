@@ -13,7 +13,6 @@ interface AppShellProps {
 export default function AppShell({ children }: AppShellProps) {
     const { pathname } = useLocation()
     const { isExpanded: sidebarExpanded, toggleSidebar } = useSidebar()
-    
     useShortcuts(toggleSidebar)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -87,7 +86,7 @@ export default function AppShell({ children }: AppShellProps) {
                     </div>
                 )}
 
-                <main 
+                <main
                     className="flex-1 overflow-auto transition-all duration-300 ease-in-out ml-0 lg:ml-[var(--sidebar-width)] pt-14 lg:pt-0 pb-16 lg:pb-0"
                     style={{ '--sidebar-width': `${desktopSidebarWidth}px` } as React.CSSProperties}
                 >

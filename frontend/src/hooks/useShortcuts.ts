@@ -19,7 +19,7 @@ export function useShortcuts(onToggleSidebar?: () => void) {
 
     useEffect(() => {
         let lastChar = ''
-        
+
         const handleKeyDown = (e: KeyboardEvent) => {
             // Ignore if user is typing in an input
             const target = e.target as HTMLElement
@@ -47,7 +47,7 @@ export function useShortcuts(onToggleSidebar?: () => void) {
                     case 't': navigate(routes.settings); break
                     case 'b': {
                         onToggleSidebar?.()
-                        break   
+                        break
                     }
                 }
                 lastChar = ''
