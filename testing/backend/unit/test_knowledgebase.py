@@ -79,7 +79,7 @@ def test_knowledgebase_caching_and_invalidation(tmp_path):
         "cpe:/a:test:new:1.0": []
     }
     feed_file.write_text(json.dumps(new_data))
-    
+
     current_mtime = feed_file.stat().st_mtime
     os.utime(feed_file, (current_mtime + 5.0, current_mtime + 5.0))
 

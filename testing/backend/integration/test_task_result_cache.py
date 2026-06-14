@@ -9,7 +9,7 @@ def test_task_result_cache_hit_and_invalidation(test_client):
     and invalidates appropriately.
     """
     task_id = "cache-result-test-001"
-    
+
     # Seed a completed task in the database
     conn = sqlite3.connect(settings.database_path)
     conn.execute(
@@ -78,7 +78,7 @@ def test_task_result_cache_hit_and_invalidation(test_client):
 def test_task_result_cache_bypassed_for_unfinished_tasks(test_client):
     """Test that requesting task results does NOT cache running/queued tasks."""
     task_id = "cache-result-test-002"
-    
+
     # Seed a running task in the database
     conn = sqlite3.connect(settings.database_path)
     conn.execute(
