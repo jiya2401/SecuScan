@@ -6,8 +6,8 @@ Last synced: 2026-05-11
 
 ## At a Glance
 
-- Total plugins: 61
-- Safe plugins: 28
+- Total plugins: 59
+- Safe plugins: 26
 - Intrusive plugins: 25
 - Exploit plugins: 8
 - Source of truth: each plugin's `metadata.json`
@@ -26,7 +26,7 @@ Only run scans against systems you own or are explicitly authorized to assess.
 
 | Category | Count |
 | --- | ---: |
-| `recon` | 19 |
+| `recon` | 17 |
 | `vulnerability` | 12 |
 | `robots` | 5 |
 | `web` | 5 |
@@ -342,3 +342,16 @@ Two additional lint checks help maintain high-quality plugin metadata:
 Existing plugins can be brought into compliance incrementally — the help
 text check is a non-blocking warning, and unknown categories cause a
 clear error message identifying the problem.
+
+---
+
+---
+
+## Catalog Validation (For Contributors)
+
+To prevent the index, categories, and metrics in this file from drifting out of sync with the live plugin directories, a validation tool is provided.
+
+Before submitting a Pull Request that adds, removes, or modifies a plugin, ensure the catalog is synced by running:
+
+```bash
+python scripts/validate_plugins_catalog.py
