@@ -167,6 +167,26 @@ export default function Findings() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [exportDropdownOpen, setExportDropdownOpen] = useState(false)
 
+  const [columnVisibility, setColumnVisibility] = useState({
+    category: true,
+    findingKind: true,
+    cve: true,
+    confidence: true,
+    occurrenceCount: true,
+    cvss: true,
+  })
+
+  const [showColumnChooser, setShowColumnChooser] = useState(false)
+
+  const columnLabels = {
+    category: 'Category',
+    findingKind: 'Finding Kind',
+    cve: 'CVE',
+    confidence: 'Confidence',
+    occurrenceCount: 'Occurrence Count',
+    cvss: 'CVSS',
+  }
+
   // ── Saved views ────────────────────────────────────────────────────────────
   const { views, loading: viewsLoading, saveView, deleteView, renameView } = useSavedViews()
 
@@ -806,6 +826,38 @@ export default function Findings() {
                   currentPreset={currentPreset}
                   onApply={applyPreset}
                 />
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowColumnChooser(!showColumnChooser)}
+                    className="h-11 border border-silver-bright/20 bg-charcoal-dark px-4 text-[10px] font-black uppercase tracking-[0.18em] text-silver/75"
+                  >
+                    Columns
+                  </button>
+
+                  {showColumnChooser && (
+                    <div className="absolute right-0 top-12 z-50 w-56 border border-black bg-charcoal-dark p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                      {Object.entries(columnVisibility).map(([key, value]) => (
+                        <label
+                          key={key}
+                          className="mb-2 flex items-center gap-2 text-xs text-silver-bright"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={value}
+                            onChange={() =>
+                              setColumnVisibility((prev) => ({
+                                ...prev,
+                                [key]: !prev[key as keyof typeof prev],
+                              }))
+                            }
+                          />
+                          {columnLabels[key as keyof typeof columnLabels]}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={resetAllFilters}
@@ -1002,20 +1054,22 @@ export default function Findings() {
                                         <span className={`border px-2 py-1 text-[9px] font-black uppercase tracking-[0.18em] ${getStatusTone(finding.status)}`}>
                                           {finding.status}
                                         </span>
-                                        <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-silver/35">
-                                          {finding.category || 'Uncategorized'}
-                                        </span>
-                                        {finding.finding_kind ? (
+                                        {columnVisibility.category && (
+                                          <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-silver/35">
+                                            {finding.category || 'Uncategorized'}
+                                          </span>
+                                        )}
+                                        {columnVisibility.findingKind && finding.finding_kind ? (
                                           <span className="border border-silver-bright/10 bg-charcoal-dark px-2 py-1 text-[9px] font-mono uppercase tracking-[0.15em] text-silver/70">
                                             {finding.finding_kind.replace('_', ' ')}
                                           </span>
                                         ) : null}
-                                        {finding.cve ? (
+                                        {columnVisibility.cve && finding.cve ? (
                                           <span className="border border-rag-blue/20 bg-rag-blue/10 px-2 py-1 text-[9px] font-mono uppercase tracking-[0.15em] text-rag-blue">
                                             {finding.cve}
                                           </span>
                                         ) : null}
-                                        {typeof finding.confidence === 'number' ? (
+                                        {columnVisibility.confidence && typeof finding.confidence === 'number' ? (
                                           <span className="border border-silver-bright/10 bg-charcoal-dark px-2 py-1 text-[9px] font-mono uppercase tracking-[0.15em] text-silver-bright">
                                             {(finding.confidence * 100).toFixed(0)}% confidence
                                           </span>
@@ -1035,7 +1089,7 @@ export default function Findings() {
                                     </div>
 
                                     <div className="flex flex-row items-end gap-6 lg:min-w-[140px] lg:flex-col lg:items-end">
-                                      {typeof finding.occurrence_count === 'number' && finding.occurrence_count > 1 ? (
+                                      {columnVisibility.occurrenceCount && typeof finding.occurrence_count === 'number' && finding.occurrence_count > 1 ? (
                                         <div className="text-right">
                                           <p className="text-[9px] font-black uppercase tracking-[0.2em] text-silver/35">Seen</p>
                                           <p className="text-2xl font-black italic text-silver-bright">
@@ -1043,7 +1097,7 @@ export default function Findings() {
                                           </p>
                                         </div>
                                       ) : null}
-                                      {typeof finding.cvss === 'number' ? (
+                                      {columnVisibility.cvss && typeof finding.cvss === 'number' ? (
                                         <div className="text-right">
                                           <p className="text-[9px] font-black uppercase tracking-[0.2em] text-silver/35">CVSS</p>
                                           <p className={`text-3xl font-black italic ${finding.cvss >= 9 ? 'text-rag-red' : 'text-silver-bright'}`}>
