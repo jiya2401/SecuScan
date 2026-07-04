@@ -55,6 +55,49 @@ def test_plugin_interpolation_sanitizes_user_controlled_values():
     )
 
 
+def test_plugin_interpolation_single_pass_prevents_sequential_injection():
+    """Single-pass substitution must not resolve placeholders injected by user values.
+
+    This test verifies the fix for CVE-class sequential template injection:
+    if field A's value contains ``{field_B}``, the single-pass approach prevents
+    it from being resolved when field B is substituted.
+    """
+    manager = PluginManager("plugins")
+
+    token = "use {module}; set RHOSTS {target}; set PAYLOAD {payload}; run"
+    inputs = {
+        "module": "exploit/multi/handler",
+        "target": "10.0.0.1",
+        "payload": "generic/shell_reverse_tcp",
+    }
+    result = manager._interpolate(token, inputs)
+    assert "; set TARGET " not in result
+
+    # A value containing brace-delimited text that matches another placeholder
+    # must NOT leak into the second substitution.
+    inputs2 = {
+        "module": "exploit/{target}",
+        "target": "EVIL_INJECTED",
+        "payload": "generic/shell_reverse_tcp",
+    }
+    result2 = manager._interpolate(token, inputs2)
+    assert result2 is not None
+    # EVIL_INJECTED appears only once (from the legitimate {target})
+    assert result2.count("EVIL_INJECTED") == 1
+    # The injected {target} in the module value is preserved literally
+    assert "{target}" in result2
+
+
+def test_plugin_interpolation_preserves_braces_in_values():
+    """Curly braces in user values must be preserved (not stripped by sanitize_input)."""
+    manager = PluginManager("plugins")
+
+    result = manager._interpolate("--json={payload}", {"payload": "{key: value}"})
+    assert result is not None
+    assert "{" in result and "}" in result
+    assert result == "--json={key: value}"
+
+
 def test_plugin_interpolation_preserves_legitimate_argv_values():
     manager = PluginManager("plugins")
 
